@@ -12,103 +12,103 @@ def to_device(tensor=None):
 class Attention(nn.Module):
     def __init__(self, embed_dim, num_heads):
         super().__init__()
-        print("Constructing Attention Layer")
+        #print("Constructing Attention Layer")
         assert embed_dim % num_heads == 0, f'Embedding dimension ({embed_dim}) should be divisible by number of heads ({num_heads})'
         self.num_heads = num_heads
-        print("*"*50)
-        print(f"Embedding dimension: {embed_dim}, Number of heads: {num_heads}")
+        #print("*"*50)
+        #print(f"Embedding dimension: {embed_dim}, Number of heads: {num_heads}")
         self.head_dim = embed_dim // num_heads
         self.scale = self.head_dim ** -0.5
-        print(f"Scaled by: {self.scale}")
-        print("*"*50)
+        #print(f"Scaled by: {self.scale}")
+        #print("*"*50)
         self.k_projection  = nn.Linear(embed_dim, embed_dim, bias=False)
-        print(f"Keys projection: {embed_dim} x {embed_dim}")
-        print(f"Keys projection:{self.k_projection}")
+        #print(f"Keys projection: {embed_dim} x {embed_dim}")
+        #print(f"Keys projection:{self.k_projection}")
         self.q_projection = nn.Linear(embed_dim, embed_dim, bias=False)
-        print(f"Queries projection: {embed_dim} x {embed_dim}")
-        print(f"Queries projection:{self.q_projection}")
+        #print(f"Queries projection: {embed_dim} x {embed_dim}")
+        #print(f"Queries projection:{self.q_projection}")
         self.v_projeciton  = nn.Linear(embed_dim, embed_dim, bias=False)
-        print(f"Values projection: {embed_dim} x {embed_dim}")
-        print(f"Values projection:{self.v_projeciton}")
+        #print(f"Values projection: {embed_dim} x {embed_dim}")
+        #print(f"Values projection:{self.v_projeciton}")
         self.o_projection = nn.Linear(embed_dim, embed_dim)
-        print(f"Output projection: {embed_dim} x {embed_dim}")
-        print(f"Output projection:{self.o_projection}")
+        #print(f"Output projection: {embed_dim} x {embed_dim}")
+        #print(f"Output projection:{self.o_projection}")
 
     def forward(self, x):
-        print("*"*50)
-        print("Foward pass through Attention Layer")
+        #print("*"*50)
+        #print("Foward pass through Attention Layer")
 
         """
         This function computes the multi-head self-attention of x.
         """
         batch_size, seq_length, embed_dim = x.size()
-        print(f"Batch size: {batch_size}, Sequence length: {seq_length}, Embedding dimension: {embed_dim}")
-        print(f"X shape: {x.shape}")
-        print(f"X: {x}")
-        print("*"*50)
-        print("Generating keys, queries, and values")
+        #print(f"Batch size: {batch_size}, Sequence length: {seq_length}, Embedding dimension: {embed_dim}")
+        #print(f"X shape: {x.shape}")
+        #print(f"X: {x}")
+        #print("*"*50)
+        #print("Generating keys, queries, and values")
         # Generate keys, queries, and values
         keys    = self.k_projection(x) # B x seq_len x embed_dim
-        print(f"Keys shape: {keys.shape}")
-        print(f"Keys: {keys}")
+        #print(f"Keys shape: {keys.shape}")
+        #print(f"Keys: {keys}")
         queries = self.q_projection(x) # B x seq_len x embed_dim
-        print(f"Queries shape: {queries.shape}")
-        print(f"Queries: {queries}")
+        #print(f"Queries shape: {queries.shape}")
+        #print(f"Queries: {queries}")
         values  = self.v_projeciton(x) # B x seq_len x embed_dim
-        print(f"Values shape: {values.shape}")
-        print(f"Values: {values}")
-        print("*"*50)
+        #print(f"Values shape: {values.shape}")
+        #print(f"Values: {values}")
+        #print("*"*50)
 
         """
         Now you have to split the projected keys, queries, and values to multiple heads.
         """
         # First split the embed_dim to num_heads x head_dim
-        print("*"*50)
+        #print("*"*50)
         keys = rearrange(keys, 'b s (h d) -> b h s d', h=self.num_heads)
-        print(f"Keys shape after splitting: {keys.shape}")
-        print(f"Keys after splitting: {keys}")
-        print("*"*50)
+        #print(f"Keys shape after splitting: {keys.shape}")
+        #print(f"Keys after splitting: {keys}")
+        #print("*"*50)
         # Secondly merge the batch_size with the num_heads
-        print("Keys shape before merging batch_size with num_heads")
+        #print("Keys shape before merging batch_size with num_heads")
         keys = rearrange(keys, 'b h s d -> (b h) s d')
-        print(f"Keys shape after merging batch_size with num_heads: {keys.shape}")
+        #print(f"Keys shape after merging batch_size with num_heads: {keys.shape}")
         # HINT repeat the same process for queries and values
-        print("*"*50)
-        print(f"Queries shape before splitting and merging {queries.shape}")
+        #print("*"*50)
+        #print(f"Queries shape before splitting and merging {queries.shape}")
         queries = rearrange(queries, 'b s (h d) -> b h s d', h=self.num_heads)
-        print(f"Queries shape after splitting: {queries.shape}")
+        #print(f"Queries shape after splitting: {queries.shape}")
         queries = rearrange(queries, 'b h s d -> (b h) s d')
-        print(f"Queries shape after merging: {queries.shape}")
-        print("*"*50)
+        #print(f"Queries shape after merging: {queries.shape}")
+        #print("*"*50)
 
-        print(f"Values shape before splitting and merging {values.shape}")
+        #print(f"Values shape before splitting and merging {values.shape}")
         values = rearrange(values, 'b s (h d) -> b h s d', h=self.num_heads)
-        print(f"Values shape after splitting: {values.shape}")
+        #print(f"Values shape after splitting: {values.shape}")
         values = rearrange(values, 'b h s d -> (b h) s d')
-        print(f"Values shape after merging: {values.shape}")
+        #print(f"Values shape after merging: {values.shape}")
 
         # Compute attetion logits
-        print("*"*50)
+        #print("*"*50)
         attention_logits = torch.bmm(queries, keys.transpose(1, 2))
-        print(f"Attention logits shape: {attention_logits.shape}")
-        print(f"Attention logits: {attention_logits}")
-        print("*"*50)
+        #print(f"Attention logits shape: {attention_logits.shape}")
+        #print(f"Attention logits: {attention_logits}")
+        #print("*"*50)
         attention_logits = attention_logits * self.scale
-        print(f"Attention logits after scaling: {attention_logits}")
-        print(f"Attention logits shape after scaling: {attention_logits.shape}")
-        print("*"*50)
+        #print(f"Attention logits after scaling: {attention_logits}")
+        #print(f"Attention logits shape after scaling: {attention_logits.shape}")
+        #print("*"*50)
         attention = F.softmax(attention_logits, dim=-1)
-        print(f"Attention shape: {attention.shape}")
-        print(f"Attention: {attention}")
-        print("*"*50)
+        #print(f"Attention shape: {attention.shape}")
+        #print(f"Attention: {attention}")
+        #print("*"*50)
 
         # Apply attention to values
-        print("Applying attention to values")
-        print(f"Values shape and attention shape: {values.shape}, {attention.shape}")
+        #print("Applying attention to values")
+        #print(f"Values shape and attention shape: {values.shape}, {attention.shape}")
         out = torch.bmm(attention, values)
-        print(f"Output shape: {out.shape}")
-        print(f"Output: {out}")
-        print("*"*50)
+        #print(f"Output shape: {out.shape}")
+        #print(f"Output: {out}")
+        #print("*"*50)
 
         # Rearragne output
         # from (batch_size x num_head) x seq_length x head_dim to batch_size x seq_length x embed_dim

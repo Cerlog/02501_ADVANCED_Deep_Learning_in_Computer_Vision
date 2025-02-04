@@ -86,8 +86,10 @@ def main(embed_dim=128, num_heads=4, num_layers=4, num_epochs=20,
             if seq_len > MAX_SEQ_LEN:
                 input_seq = input_seq[:, :MAX_SEQ_LEN]
             out = model(input_seq)
-            loss = ... # compute loss
-            ... # backward
+            loss = loss_function(out, label)
+            loss.backward()
+
+            
             # if the total gradient vector has a length > 1, we clip it back down to 1.
             if gradient_clipping > 0.0:
                 nn.utils.clip_grad_norm_(model.parameters(), gradient_clipping)
