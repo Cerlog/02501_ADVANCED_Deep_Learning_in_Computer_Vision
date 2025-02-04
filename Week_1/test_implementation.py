@@ -4,7 +4,7 @@ import torch
 from transformer import Attention, PositionalEncoding, TransformerClassifier
 from text_classification import prepare_data_iter, set_seed
 
-def test_attention(batch_size=1, seq_len=124, embed_dim=64, device='gpu'):
+def test_attention(batch_size=16, seq_len=512, embed_dim=128, device='cpu'):
 
     # token: batch_size x seq_len x embed_dim
     token = torch.rand(batch_size, seq_len, embed_dim).to(device)
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     print()
     print('test Attention implementation')
     print(45*'-')
-    test_attention(batch_size=8, seq_len=512, embed_dim=128, device='gpu')
+    test_attention(batch_size=8, seq_len=512, embed_dim=128, device='cpu')
     print(45*'-')
 
     print()
@@ -81,5 +81,5 @@ if __name__ == '__main__':
     print()
     print('test TransformerClassifier implementation')
     print(45*'-')
-    test_transformer(batch_size=8, seq_len=512, num_classes=2, device='gpu') 
+    test_transformer(batch_size=8, seq_len=512, num_classes=2, device='cpu') 
     print(45*'-')
