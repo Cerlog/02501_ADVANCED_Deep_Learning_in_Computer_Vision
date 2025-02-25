@@ -44,10 +44,10 @@ def prepare_dataloader(batch_size):
     from torch.utils.data import DataLoader
     from dataset.sprites_dataset import SpritesDataset
     transform = transforms.Compose([
-    transforms.ToTensor(),                # from [0,255] to range [0.0,1.0]
-    transforms.Normalize((0.5,), (0.5,),
-                         transforms.Resize((64, 64)))  # range [-1,1]
-
+        transforms.ToPILImage(),            # Convert numpy array to PIL Image
+        transforms.Resize((64, 64)),        # Resize image to 64x64
+        transforms.ToTensor(),              # Convert PIL Image to tensor
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalize for RGB images
     ])
     dataset = SpritesDataset(transform, num_samples=DATASET_SIZE, seed=SEED)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
